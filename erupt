@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+
+// this starts the server and watches for changes
+var forever = require('forever'),
+    child = new(forever.Monitor)('server.js', {
+        'silent': false,
+        'watch': true,
+        'watchDirectory': '.',											// Top-level directory to watch from.
+        'watchIgnoreDotFiles': true										// whether to ignore dot files
+    });
+    
+child.start();
+forever.startServer(child);

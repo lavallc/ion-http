@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Control the ION lamp from your web browser.">
+    <meta name="author" content="Lava LLC">
+
+    <title>Try ION</title>
+
+    <link href='http://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700' rel='stylesheet' type='text/css'>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/dashboard.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript">
+      window.debugMode = <% if (config.enableDebug) { %>true<% } else { %>false<% } %>;
+    </script>
+  </head>
+
+  <body>
+    <div class="blog-masthead">
+      <div class="container">
+        <nav class="blog-nav">
+          <a class="blog-nav-item active" href="#">Try ION</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <div class="row">
+        <div class="col-xs-8">
+          <br />
+          <h1 class="blog-title">ION wants to play</h1>
+          <p class="blog-description">Control me live from your web browser</p>
+          <br />
+        </div>
+        <div class="col-xs-4">
+          <span class="pull-right">
+            <br /><br />
+            <button type="button" class="btn btn-success btn-lg" onclick="window.open('http://ks.lava.io');">Shut up and take my money!</button>
+          </span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-8">
+          <div class="row" id="waitingPanel">
+            <div class="col-xs-12">
+              <br /><p>To control ION, click "request control". If no one else is waiting, you'll immediately take control. Otherwise you'll be placed in line while others are taking their turn.</p><br /><br />
+            </div>
+          </div>
+
+          <div class="row" id="controlPanel" style="display: none;">
+            <div class="col-xs-3">
+              <ul class="nav nav-pills nav-stacked">
+                <b>Moods</b>
+                <li id="offNav" class="nav-item"><a href="javascript:void(0)" onclick="setupOffPanel();">Off</a></li>
+                <li id="lightNav" class="nav-item"><a href="javascript:void(0)" onclick="setupLightPanel();">Light</a></li>
+                <li id="digitalrainNav" class="nav-item"><a href="javascript:void(0)" onclick="setupDigitalRainPanel();">Digital Rain</a></li>
+                <li id="flameNav" class="nav-item"><a href="javascript:void(0)" onclick="setupFlamePanel();">Flame</a></li>
+                <li id="spiralNav" class="nav-item"><a href="javascript:void(0)" onclick="setupSpiralPanel();">Spiral</a></li>
+                <li id="raveNav" class="nav-item"><a href="javascript:void(0)" onclick="setupRavePanel();">Rave</a></li>
+                <li id="weatherNav" class="nav-item"><a href="javascript:void(0)" onclick="setupWeatherPanel();">Weather</a></li>
+                <li id="strobeNav" class="nav-item"><a href="javascript:void(0)" onclick="setupStrobePanel();">Strobe</a></li>
+                <li id="lavaNav" class="nav-item"><a href="javascript:void(0)" onclick="setupLavaPanel();">Lava</a></li>
+                <li id="rainbowNav" class="nav-item"><a href="javascript:void(0)" onclick="setupRainbowPanel();">Rainbow</a></li>
+                <li id="linesNav" class="nav-item"><a href="javascript:void(0)" onclick="setupLinesPanel();">Lines</a></li>
+                <li id="sparkleNav" class="nav-item"><a href="javascript:void(0)" onclick="setupSparklePanel();">Sparkle</a></li>
+                <li id="fireworksNav" class="nav-item"><a href="javascript:void(0)" onclick="setupFireworksPanel();">Fireworks</a></li>
+                <li id="plasmaNav" class="nav-item"><a href="javascript:void(0)" onclick="setupPlasmaPanel();">Plasma</a></li>
+                <li id="pulseNav" class="nav-item"><a href="javascript:void(0)" onclick="setupPulsePanel();">Pulse</a></li>
+                <b>Notifications</b>
+                <li id="haloNav" class="nav-item"><a href="javascript:void(0)" onclick="setupHaloPanel();">Halo</a></li>
+                <li id="spinNav" class="nav-item"><a href="javascript:void(0)" onclick="setupSpinPanel();">Spin</a></li>
+                <li id="glowNav" class="nav-item"><a href="javascript:void(0)" onclick="setupGlowPanel();">Glow</a></li>
+                <% if (config.enableDebug) { %>
+                  <b>Debug Mode</b>
+                  <li id="debugNav" class="nav-item"><a href="javascript:void(0)" onclick="setupDebugPanel();">Debug</a></li>
+                <% } %>
+              </ul>
+            </div>
+
+            <div class="col-xs-9">
+              <div class="main-panel">
+                <div id="instructions" class="control-panel well">
+                  <div align="center">
+                    <h3>Instructions</h3><br />
+                    <p>Click a mood or notification name on the left and ION will switch to it!</p>
+                  </div>
+                </div>
+                <div id="off" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Off</h3><br />
+                    <p>ION has been turned off :(</p>
+                  </div>
+                </div>
+                <div id="light" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Light</h3><br />
+                    <button type="button" class="btn btn-warning" id="patternLightCandleBtn">Candle</button>
+                    <button type="button" class="btn btn-warning" id="patternLightTungstenBtn">Tungsten</button>
+                    <button type="button" class="btn btn-warning" id="patternLightIncandescentBtn">Incandescent</button><br /><br />
+                    <button type="button" class="btn btn-warning" id="patternLightHalogenBtn">Halogen</button>
+                    <button type="button" class="btn btn-warning" id="patternLightFluorescentBtn">Fluorescent</button>
+                    <button type="button" class="btn btn-warning" id="patternLightSunlightBtn">Sunlight</button>
+
+                    <div class="picker yui3-skin-sam">
+                        <div id="light-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Brightness</h4>
+                      <p>
+                        <span class="horiz_slider" id="light-brightness"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="digitalrain" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Digital Rain</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="digitalrain-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="digitalrain-speed"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="flame" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Flame</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="flame-hue" class="colorwheel"></div>
+                    </div>
+                  </div>
+                </div>
+                <div id="halo" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Notification: Halo</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="halo-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="halo-speed"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="spiral" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Spiral</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="spiral-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="spiral-speed"></span>
+                      </p>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Brightness</h4>
+                      <p>
+                        <span class="horiz_slider" id="spiral-brightness"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="rave" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Rave</h3><br />
+
+                    <% if (config.enableDebug) { %>
+
+                      <button type="button" class="btn btn-warning" id="patternMusicBassOffBtn">Bass Boost Off</button>
+                      <button type="button" class="btn btn-warning" id="patternMusicBassOnBtn">Bass Boost On</button><br /><br />
+
+                      <div class="yui3-skin-sam">
+                        <h4>Speed</h4>
+                        <p>
+                          <span class="horiz_slider" id="music-speed"></span>
+                        </p>
+                      </div>
+
+                      <div class="yui3-skin-sam">
+                        <h4>Kick Threshold</h4>
+                        <p>
+                          <span class="horiz_slider" id="music-kick-threshold"></span>
+                        </p>
+                      </div>
+
+                      <div class="picker yui3-skin-sam">
+                          <div id="music-low-hue" class="colorwheel"></div>
+                      </div>
+                      <div class="yui3-skin-sam">
+                        <h4>Low Strength</h4>
+                        <p>
+                          <span class="horiz_slider" id="music-low-strength"></span>
+                        </p>
+                      </div>
+
+                      <div class="picker yui3-skin-sam">
+                          <div id="music-mid-hue" class="colorwheel"></div>
+                      </div>
+                      <div class="yui3-skin-sam">
+                        <h4>Mid Strength</h4>
+                        <p>
+                          <span class="horiz_slider" id="music-mid-strength"></span>
+                        </p>
+                      </div>
+
+                      <div class="picker yui3-skin-sam">
+                          <div id="music-high-hue" class="colorwheel"></div>
+                      </div>
+                      <div class="yui3-skin-sam">
+                        <h4>High Strength</h4>
+                        <p>
+                          <span class="horiz_slider" id="music-high-strength"></span>
+                        </p>
+                      </div>
+                  <% } else { %>
+                    <p>The rave mood creates a light show to any music currently playing in the room (using ION's micrpophone). You may only see this mood reacting when we've got our music cranked up in the office :)</p>
+                  <% } %>
+
+                  </div>
+                </div>
+                <div id="weather" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Weather</h3><br />
+                    <p>The weather mood corresponds to current conditions outside and time of day. For this demo, ION simulates the sunrise/sunset in a matter of minutes.</p>
+                  </div>
+                </div>
+                <div id="spin" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Notification: Spin</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="lighthouse-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="lighthouse-speed"></span>
+                      </p>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Brightness</h4>
+                      <p>
+                        <span class="horiz_slider" id="lighthouse-brightness"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="strobe" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Strobe</h3><br />
+                    <button type="button" class="btn btn-primary" id="patternStrobeResetColorBtn">Reset Color</button>
+
+                    <div class="picker yui3-skin-sam">
+                        <div id="strobe-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Delay</h4>
+                      <p>
+                        <span class="horiz_slider" id="strobe-speed"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="lava" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Lava</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="lava-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="lava-speed"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="rainbow" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Rainbow</h3><br />
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="rainbow-speed"></span>
+                      </p>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Brightness</h4>
+                      <p>
+                        <span class="horiz_slider" id="rainbow-brightness"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="lines" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Lines</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="lines-hue" class="colorwheel"></div>
+                    </div>
+                  </div>
+                </div>
+                <div id="sparkle" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Sparkle</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="pulse-hue" class="colorwheel"></div>
+                    </div>
+                  </div>
+                </div>
+                <div id="fireworks" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Fireworks</h3><br />
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="fireworks-speed"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="plasma" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Plasma</h3>
+                    <div class="picker yui3-skin-sam">
+                      <div id="boost-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="boost-speed"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="glow" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Notification: Glow</h3>
+                    <div class="picker yui3-skin-sam">
+                      <div id="glow-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="glow-speed"></span>
+                      </p>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Brightness</h4>
+                      <p>
+                        <span class="horiz_slider" id="glow-brightness"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="pulse" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Pulse</h3><br />
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="smokestack-speed"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <% if (config.enableDebug) { %>
+                  <div id="debug" style="display: none;" class="control-panel well">
+                    <div align="center">
+                      <h3>Debug</h3><br />
+                      <p>Every time a config packet is sent, a 'pattern set' packet will be sent before to ensure that pattern is currently active.</p><br />
+                      <input type="text" class="form-control" id="debugPatternId" placeholder="Pattern ID (dec)">
+                      <input type="text" class="form-control" id="debugConfigId" placeholder="Config ID (dec)">
+                      <input type="text" class="form-control" id="debugConfigVal" placeholder="Config Value (dec)"><br />
+                      <button type="button" class="btn btn-default" id="patternDebugBtn">Submit</button>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xs-3 blog-sidebar col-xs-offset-1">
+          <div class="sidebar-module sidebar-module-inset">
+            <h1 class="dashboard-text" id="viewerCount">?</h1>
+            viewers<br /><br />
+
+            <h1 class="dashboard-text" id="lineCount">?</h1>
+            waiting for their turn<br /><br />
+
+            <h1 class="dashboard-text" id="secondsCountdown">?</h1>
+            seconds until next user<br /><br />
+
+            <h4 class="dashboard-text" id="currentUser">?</h4>
+            current user<br />
+          </div>
+
+          <div class="sidebar-module sidebar-module-inset">
+            <h4 class="dashboard-text" id="currentNickname">?</h4>
+            your assigned nickname<br /><br />
+
+            <div style="display: none;" id="usersAhead"><h4 class="dashboard-text" id="usersAheadCount">?</h4>
+            users ahead of you<br /><br /></div>
+
+            <span class="label label-info" id="inLineLabel" style="display: none;">currently in line</span>
+            <span class="label label-warning" id="inControlLabel" style="display: none;">YOU HAVE CONTROL</span>
+            <button type="button" class="btn btn-primary" id="getInLineBtn">request control</button><br />
+          </div>
+
+          <div class="sidebar-module sidebar-module-inset" id="action-log">
+            <h3>action log</h3><br />
+            <div id="log"></div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /.container -->
+
+    <div class="blog-footer">
+      <p>ION made with &lt;3 by <a href="http://lava.io">Lava</a>.</p>
+      <p>
+        <a href="#">Back to top</a>
+      </p>
+    </div>
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="http://yui.yahooapis.com/3.15.0/build/yui/yui-min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/ion-control.js"></script>
+    <script type="text/javascript">
+      setupSocket();
+    </script>
+  </body>
+</html>
