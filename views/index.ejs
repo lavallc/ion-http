@@ -45,23 +45,12 @@
           <p class="blog-description">Control me live from your web browser</p>
           <br />
         </div>
-        <div class="col-xs-4">
-          <span class="pull-right">
-            <br /><br />
-            <button type="button" class="btn btn-success btn-lg" onclick="window.open('http://ks.lava.io');">Shut up and take my money!</button>
-          </span>
-        </div>
       </div>
 
       <div class="row">
         <div class="col-xs-8">
-          <div class="row" id="waitingPanel">
-            <div class="col-xs-12">
-              <br /><p>To control ION, click "request control". If no one else is waiting, you'll immediately take control. Otherwise you'll be placed in line while others are taking their turn.</p><br /><br />
-            </div>
-          </div>
 
-          <div class="row" id="controlPanel" style="display: none;">
+          <div class="row" id="controlPanel">
             <div class="col-xs-3">
               <ul class="nav nav-pills nav-stacked">
                 <b>Moods</b>
@@ -416,32 +405,6 @@
         </div>
 
         <div class="col-xs-3 blog-sidebar col-xs-offset-1">
-          <div class="sidebar-module sidebar-module-inset">
-            <h1 class="dashboard-text" id="viewerCount">?</h1>
-            viewers<br /><br />
-
-            <h1 class="dashboard-text" id="lineCount">?</h1>
-            waiting for their turn<br /><br />
-
-            <h1 class="dashboard-text" id="secondsCountdown">?</h1>
-            seconds until next user<br /><br />
-
-            <h4 class="dashboard-text" id="currentUser">?</h4>
-            current user<br />
-          </div>
-
-          <div class="sidebar-module sidebar-module-inset">
-            <h4 class="dashboard-text" id="currentNickname">?</h4>
-            your assigned nickname<br /><br />
-
-            <div style="display: none;" id="usersAhead"><h4 class="dashboard-text" id="usersAheadCount">?</h4>
-            users ahead of you<br /><br /></div>
-
-            <span class="label label-info" id="inLineLabel" style="display: none;">currently in line</span>
-            <span class="label label-warning" id="inControlLabel" style="display: none;">YOU HAVE CONTROL</span>
-            <button type="button" class="btn btn-primary" id="getInLineBtn">request control</button><br />
-          </div>
-
           <div class="sidebar-module sidebar-module-inset" id="action-log">
             <h3>action log</h3><br />
             <div id="log"></div>

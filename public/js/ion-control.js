@@ -1,99 +1,10 @@
 var setupStates = {};
 var lastPattern = 'off';
 
-window.magicKey = '';
 window.lastPacket = (new Date()).getTime();
-window.userTimeLeft = 0;
-window.userTimer = undefined;
-window.nickname = '';
-var lastUser = '';
 var queuedPacket;
 var queuedTimer;
-window.videoTimeoutTimer = undefined;
 
-
-
-function pauseStream() {
-  // if the tab loses focus, kill the video stream
-  if (window.webcam_socket.readyState == WebSocket.OPEN) {
-    window.webcam_socket.onclose = function(evt) {
-      // short delay for lingering frame decoding
-      setTimeout(function(){
-        // display pause state
-        var ctx = window.canvas.getContext('2d');
-        ctx.rect(0,0,window.canvas.width,window.canvas.height);
-        ctx.fillStyle="white";
-        ctx.fill();
-        ctx.fillStyle = '#444';
-        ctx.font="20px Arial";
-
-        var textString = "click here to resume video";
-        var textWidth = ctx.measureText(textString).width;
-        ctx.fillText(textString , (window.canvas.width/2) - (textWidth / 2), 200);
-      }, 300);
-    };
-
-    window.webcam_socket.close();
-  }
-}
-
-
-function resetTimeout() {
-  if (window.videoTimeoutTimer !== undefined)
-    clearTimeout(window.videoTimeoutTimer);
-
-  // put 10 minutes on the clock
-  window.videoTimeoutTimer = setTimeout(function(){
-    window.videoTimeoutTimer = undefined;
-    pauseStream();
-  }, 1000 * 60 * 10);
-}
-
-
-
-function resumeStream() {
-  // when the tab regains focus, restart video stream
-  if (window.webcam_socket.readyState == WebSocket.CLOSED) {
-    // reset video timeout
-    resetTimeout();
-
-    window.webcam_socket.onclose = function(evt) {};
-
-    window.webcam_socket.connect();
-  }
-}
-
-
-
-
-
-// set a video timeout so idlers don't eat up all our bandwidth
-resetTimeout();
-
-
-// restart the stream when the video canvas is clicked
-$('#videoCanvas').click(function() {
-  resumeStream();
-});
-
-
-// handle the tab becoming active/inactive
-$(window).on("blur focus", function(e) {
-    var prevType = $(this).data("prevType");
-
-    if (prevType != e.type) {   //  reduce double fire issues
-        switch (e.type) {
-            case "blur":
-                pauseStream();
-                break;
-            case "focus":
-                resumeStream();
-                break;
-        }
-    }
-
-    $(this).data("prevType", e.type);
-})
 
 
 
@@ -106,6 +17,7 @@ function ISODateString(d){
       + pad(d.getUTCMinutes())+':'
       + pad(d.getUTCSeconds())+'Z';
 }
+
 
 function getDateString(d) {
   var hour = d.getHours();
@@ -122,12 +34,6 @@ function getDateString(d) {
 }
 
 
-function countDown() {
-  if (window.userTimeLeft > 0)
-    window.userTimeLeft--;
-  $('#secondsCountdown').html(window.userTimeLeft);
-}
-
 
 function logMessage(m) {
   var d = new Date();
@@ -139,8 +45,6 @@ function logMessage(m) {
   if ($('#log p').length > 8) {
       $('#log p').last().hide(200).remove();
   }
-
-  //jQuery("abbr.timeago").timeago();
 }
 
 
@@ -153,115 +57,19 @@ function setupSocket() {
 
   window.iosocket.on('disconnect', function() {
     logMessage('<b>disconnected</b>');
-
-    if (window.userTimer !== undefined)
-      clearInterval(window.userTimer);
-
-    $('#viewerCount').html('?');
-    $('#lineCount').html('?');
-    $('#secondsCountdown').html('?');
-    $('#currentUser').html('?');
-    $('#currentNickname').html('?');
-
-    $('#usersAhead').hide();
-    $('#inLineLabel').hide();
-    $('#getInLineBtn').show();
-    $('#inControlLabel').hide();
   });
 
   // called anytime any user sets a pattern
   window.iosocket.on('pattern_set', function(data) {
     if (data.pattern === 'halo' || data.pattern === 'spin' || data.pattern === 'glow')
-      logMessage('<b>' + data.nickname + '</b><br /> set notification ' + data.pattern);
+      logMessage('set notification ' + data.pattern);
     else
-      logMessage('<b>' + data.nickname + '</b><br /> set mood ' + data.pattern);
+      logMessage('set mood ' + data.pattern);
   });
 
   // called anytime any user sets a pattern config
   window.iosocket.on('pattern_config_set', function(data) {
     logMessage('<b>' + data.nickname + '</b><br /> set ' + data.pattern + ' ' + data.config + ' to ' + data.value);
-  });
-
-  window.iosocket.on('queue_state', function(data) {
-    $('#currentUser').html(data.current_user);
-    $('#viewerCount').html(data.viewers);
-    $('#lineCount').html(data.current_queue.length);
-
-    if (data.current_queue.indexOf(window.nickname) == -1 && data.current_user != window.nickname) {
-      $('#inLineLabel').hide();
-      $('#getInLineBtn').show();
-      $('#inControlLabel').hide();
-      $('#usersAhead').hide();
-
-      $('#controlPanel').hide();
-      $('#waitingPanel').show();
-    }
-
-    var totalUserCount = data.current_queue.length;
-
-    if (data.current_queue.indexOf(window.nickname) !== -1) {
-      $('#usersAhead').show();
-      $('#usersAheadCount').html(data.current_queue.indexOf(window.nickname));
-    } else if (data.current_user === window.nickname) {
-      $('#usersAheadCount').html('0');
-    }
-
-    // send current user to action log if it has changed
-    if (lastUser !== data.current_user)
-      logMessage('<b>' + data.current_user + '</b><br />is in control');
-
-    lastUser = data.current_user;
-
-    // clear out the magicKey so events are not sent over the wire
-    if (data.current_user !== window.nickname)
-      window.magicKey = '';
-
-    // setup countdown timer
-    if (window.userTimer !== undefined)
-      clearInterval(window.userTimer);
-
-    window.userTimeLeft = parseInt(Math.round(data.seconds_until_next_user));
-    $('#secondsCountdown').html(window.userTimeLeft);
-
-    // tick down every second
-    window.userTimer = setInterval(countDown, 1000);
-  });
-
-  window.iosocket.on('entered_queue', function(data) {
-    window.nickname = data.nickname;
-    $('#currentNickname').html(window.nickname);
-    $('#inLineLabel').show();
-    $('#getInLineBtn').hide();
-    $('#inControlLabel').hide();
-  });
-
-  window.iosocket.on('assigned_username', function(data) {
-    window.nickname = data.nickname;
-    $('#currentNickname').html(window.nickname);
-  });
-
-  window.iosocket.on('in_control', function(data) {
-    // reset video timeout
-    resetTimeout();
-
-    window.magicKey = data.magicKey;
-
-    $('#usersAhead').hide();
-
-    $('#controlPanel').show();
-    $('#waitingPanel').hide();
-    $('#inLineLabel').hide();
-    $('#getInLineBtn').hide();
-    $('#inControlLabel').show();
-  });
-
-  // setup queue button listener
-  $('#getInLineBtn').click(function() {
-    // reset video timeout
-    resetTimeout();
-
-    if (window.iosocket.socket.connected)
-      window.iosocket.emit('enter_queue');
   });
 }
 
@@ -283,8 +91,8 @@ function activatePattern(id) {
 
   lastPattern = id;
   console.log('activating ' + id);
-  if (window.iosocket.socket.connected && window.magicKey !== '') {
-    window.iosocket.emit('control', {'magicKey': window.magicKey, 'controlType': 'pattern', 'pattern': id});
+  if (window.iosocket.socket.connected) {
+    window.iosocket.emit('control', {'controlType': 'pattern', 'pattern': id});
   }
 }
 
@@ -302,10 +110,9 @@ function sendQueuedPacket() {
 
 function setPatternConfig(configName, configVal) {
   var command = function() {
-    if (window.iosocket.socket.connected && window.magicKey !== '') {
+    if (window.iosocket.socket.connected) {
       console.log('set config ' + configName + ' at ' + configVal + ' for pattern ' + lastPattern);
       window.iosocket.emit('control', {
-        'magicKey': window.magicKey,
         'controlType': 'patternConfig',
         'pattern': lastPattern,
         'configName': configName,

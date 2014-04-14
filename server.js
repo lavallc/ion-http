@@ -12,74 +12,6 @@ var ion = require('./ion-local');
 // make sure someone isn't spamming the server with commands
 var lastPacket = (new Date()).getTime();
 
-// the next point in time a user can take control
-var nextControlWindow = (new Date()).getTime();
-
-// who is currently in control?
-var currentUser = 'nobody';
-var currentUserSocket = null;
-
-
-function sendQueueState(sockets) {
-  var currentQueue = new Array();
-  
-  var secondsUntilNextUser = 0;
-
-  if ((nextControlWindow - (new Date()).getTime())/1000 > 0)
-    secondsUntilNextUser = (nextControlWindow - (new Date()).getTime())/1000;
-
-  for (var i=0; i<waitingList.length; i++) {
-    currentQueue.push(waitingList[i].nickname);
-  }
-
-  // allow everyone to update their page
-  sockets.emit('queue_state', {
-    'current_queue': currentQueue,
-    'seconds_until_next_user': secondsUntilNextUser,
-    'current_user': currentUser,
-    'viewers': io.sockets.clients().length
-  });
-}
-
-
-// this runs regularly to clean up disconnected users and keep the line moving
-function serviceNextUser() {
-    // these users have left the queue
-    for(var i = waitingList.length-1; i >= 0; i--){
-      if (waitingList[i].disconnected) {
-        waitingList.splice(i, 1);
-        console.log('removed inactive user');
-      }
-    }
-
-    // reset the magicKey and send it to the next user in line
-    magicKey = utils.generateKey(32);
-    var nextUser = waitingList.shift();
-
-    // no one else has joined the queue and the last user is still connected
-    // let them keep going
-    if (nextUser === undefined && currentUserSocket && !currentUserSocket.disconnected)
-      nextUser = currentUserSocket;
-
-    if (nextUser != undefined) {
-      // update the time window
-      nextControlWindow = (new Date()).getTime() + (config.timeBetweenUsers * 1000);
-
-      currentUser = nextUser.nickname;
-      currentUserSocket = nextUser;
-      console.log('user ' + nextUser.nickname + ' taking control');
-      nextUser.emit('in_control', {'magicKey': magicKey});
-    } else {
-      currentUser = 'nobody';
-    }
-
-    // send page updates to all connected users
-    sendQueueState(io.sockets);
-}
-
-
-// run the service routine regularly
-var serviceUsersTimer = setInterval(serviceNextUser, config.timeBetweenUsers * 1000);
 
 
 
@@ -434,102 +366,57 @@ function setConfigForPattern(patternName, configName, configVal) {
 io.set('log level', 1);
 
 io.sockets.on('connection', function (socket) {
-  // we need to send initial state to the client
-  sendQueueState(socket);
-
-  // ensure the assigned nickname is not a duplicate
-  var unique = false;
-
-  // assign this user a nickname
-  while (!unique) {
-    unique = true;
-
-    var tmpNick = moniker.choose();
-
-    for (var i=0; i<io.sockets; i++) {
-      if (io.sockets[i].nickname && io.sockets[i].nickname === tmpNick)
-        unique = false;
-    }
-
-    if (unique)
-      socket.nickname = tmpNick;
-  }
-
-  socket.emit('assigned_username', {'nickname': socket.nickname});
-
-  // user it attempting to enter queue
-  socket.on('enter_queue', function (data) {
-    // make sure user is not already in queue
-    if (waitingList.indexOf(socket) == -1) {
-      // let the user know they have entered the queue
-      socket.emit('entered_queue', {'nickname': socket.nickname});
-      waitingList.push(socket);
-    }
-
-    // there is no one in the queue, immediately give this user control
-    if (currentUser === 'nobody') {
-      clearInterval(serviceUsersTimer);
-      serviceNextUser();
-      serviceUsersTimer = setInterval(serviceNextUser, config.timeBetweenUsers * 1000);
-    } else {
-      sendQueueState(io.sockets);
-    }
-  });
-
   // handle control packets from users
   socket.on('control', function (data) {
     // no crashes, please
     try {
-      // the user has the proper key (or queue is disabled), let them send commands
-      if (data.magicKey === magicKey) {
-        // user is configuring a pattern
-        if (data.controlType == 'patternConfig') {
-          var patId = parseInt(patternIdForName(data.pattern));
+      // user is configuring a pattern
+      if (data.controlType == 'patternConfig') {
+        var patId = parseInt(patternIdForName(data.pattern));
 
-          // invalid pattern name, abort
-          if (patId === -1)
-            return;
+        // invalid pattern name, abort
+        if (patId === -1)
+          return;
 
-          // rate limiting
-          if ((new Date()).getTime() - lastPacket < 250)
-            return;
+        // rate limiting
+        if ((new Date()).getTime() - lastPacket < 250)
+          return;
 
-          // set the pattern config
-          lastPacket = (new Date()).getTime();
-          var returnCode = setConfigForPattern(data.pattern, data.configName, data.configVal);
+        // set the pattern config
+        lastPacket = (new Date()).getTime();
+        var returnCode = setConfigForPattern(data.pattern, data.configName, data.configVal);
 
-          // send event to everyone if successful
-          if (returnCode === 4) {
-            io.sockets.emit('pattern_config_set', {'nickname': socket.nickname, 'pattern': data.pattern, 'config': data.configName, 'value': data.configVal});
-          }
-
-        // user is setting a pattern
-        } else if (data.controlType == 'pattern') {
-          var patId = parseInt(patternIdForName(data.pattern));
-
-          // invalid pattern name, abort
-          if (patId === -1)
-            return;
-
-          // rate limiting
-          if ((new Date()).getTime() - lastPacket < 250)
-            return;
-
-          // send event to everyone
-          io.sockets.emit('pattern_set', {'nickname': socket.nickname, 'pattern': data.pattern});
-
-          lastPacket = (new Date()).getTime();
-          setPattern(patId);
-        } else if (data.controlType == 'debug' && config.enableDebug) {
-          var patId = parseInt(data.pattern);
-          var configId = parseInt(data.configId);
-          var configVal = parseInt(data.configVal);
-
-          // set pattern and then config
-          setPattern(patId, function() {
-            setPatternConfig(patId, configId, configVal);
-          });
+        // send event to everyone if successful
+        if (returnCode === 4) {
+          io.sockets.emit('pattern_config_set', {'nickname': socket.nickname, 'pattern': data.pattern, 'config': data.configName, 'value': data.configVal});
         }
+
+      // user is setting a pattern
+      } else if (data.controlType == 'pattern') {
+        var patId = parseInt(patternIdForName(data.pattern));
+
+        // invalid pattern name, abort
+        if (patId === -1)
+          return;
+
+        // rate limiting
+        if ((new Date()).getTime() - lastPacket < 250)
+          return;
+
+        // send event to everyone
+        io.sockets.emit('pattern_set', {'nickname': socket.nickname, 'pattern': data.pattern});
+
+        lastPacket = (new Date()).getTime();
+        setPattern(patId);
+      } else if (data.controlType == 'debug' && config.enableDebug) {
+        var patId = parseInt(data.pattern);
+        var configId = parseInt(data.configId);
+        var configVal = parseInt(data.configVal);
+
+        // set pattern and then config
+        setPattern(patId, function() {
+          setPatternConfig(patId, configId, configVal);
+        });
       }
     } catch (e) {}
   });
