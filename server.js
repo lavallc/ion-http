@@ -19,10 +19,8 @@ var lastPacket = (new Date()).getTime();
 app.use(express.static(__dirname + '/public'));
 
 // configure express w/ ejs
-app.configure(function(){
-    app.set('views', __dirname + '/views');     // specifying template path
-    app.set('view engine', 'ejs');              // specifying template engine
-});
+app.set('views', __dirname + '/views');     // specifying template path
+app.set('view engine', 'ejs');              // specifying template engine
 
 
 // index page
