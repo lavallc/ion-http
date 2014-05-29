@@ -1,4 +1,5 @@
 // config.js
 module.exports = {
-  lampMac:             "d99f89c9a3a9"
+	// can be a mac address, UUID, or device friendly name
+  	lampIdentifier:             "10ebaf4188364800ad9096b3089c76a8"
 };

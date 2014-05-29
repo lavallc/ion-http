@@ -1,6 +1,6 @@
 var ionode = require('ionode'),
     config = require('./config'),
-    ion = ionode.createLamp(config.lampMac);
+    ion = ionode.createLamp(config.lampIdentifier);
 
 
 ion.type = 'local';
