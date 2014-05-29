@@ -6,10 +6,8 @@ var ionode = require('ionode'),
 ion.type = 'local';
 
 // connect to the lamp
+ion.setAutoReconnect(true);
 ion.connect();
-
-// this may not be implemented yet
-ion.setAutoReconnect();
 
 
 
@@ -23,6 +21,10 @@ ion.on('connected', function() {
 
 ion.on('disconnected', function() {
     console.log('disconnected');
+});
+
+ion.on('reconnecting', function() {
+    console.log('reconnecting');
 });
 
 ion.on('error', function(err) {

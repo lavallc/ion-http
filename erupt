@@ -6,7 +6,8 @@ var forever = require('forever'),
         'silent': false,
         'watch': true,
         'watchDirectory': '.',											// Top-level directory to watch from.
-        'watchIgnoreDotFiles': true										// whether to ignore dot files
+        'watchIgnoreDotFiles': true,									// whether to ignore dot files
+        'watchIgnorePatterns': ['**/*.css', '**/*.ejs', '**/*.js']		// array of glob patterns to ignore
     });
     
 child.start();

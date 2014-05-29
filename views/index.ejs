@@ -21,10 +21,6 @@
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
       <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-
-    <script type="text/javascript">
-      window.debugMode = <% if (config.enableDebug) { %>true<% } else { %>false<% } %>;
-    </script>
   </head>
 
   <body>
@@ -73,10 +69,6 @@
                 <li id="haloNav" class="nav-item"><a href="javascript:void(0)" onclick="setupHaloPanel();">Halo</a></li>
                 <li id="spinNav" class="nav-item"><a href="javascript:void(0)" onclick="setupSpinPanel();">Spin</a></li>
                 <li id="glowNav" class="nav-item"><a href="javascript:void(0)" onclick="setupGlowPanel();">Glow</a></li>
-                <% if (config.enableDebug) { %>
-                  <b>Debug Mode</b>
-                  <li id="debugNav" class="nav-item"><a href="javascript:void(0)" onclick="setupDebugPanel();">Debug</a></li>
-                <% } %>
               </ul>
             </div>
 
@@ -180,8 +172,6 @@
                   <div align="center">
                     <h3>Mood: Rave</h3><br />
 
-                    <% if (config.enableDebug) { %>
-
                       <button type="button" class="btn btn-warning" id="patternMusicBassOffBtn">Bass Boost Off</button>
                       <button type="button" class="btn btn-warning" id="patternMusicBassOnBtn">Bass Boost On</button><br /><br />
 
@@ -192,16 +182,9 @@
                         </p>
                       </div>
 
-                      <div class="yui3-skin-sam">
-                        <h4>Kick Threshold</h4>
-                        <p>
-                          <span class="horiz_slider" id="music-kick-threshold"></span>
-                        </p>
-                      </div>
-
                       <div class="picker yui3-skin-sam">
-                          <div id="music-low-hue" class="colorwheel"></div>
-                      </div>
+                          <div id="music-hue" class="colorwheel"></div>
+                      </div><br>
                       <div class="yui3-skin-sam">
                         <h4>Low Strength</h4>
                         <p>
@@ -209,9 +192,6 @@
                         </p>
                       </div>
 
-                      <div class="picker yui3-skin-sam">
-                          <div id="music-mid-hue" class="colorwheel"></div>
-                      </div>
                       <div class="yui3-skin-sam">
                         <h4>Mid Strength</h4>
                         <p>
@@ -219,18 +199,12 @@
                         </p>
                       </div>
 
-                      <div class="picker yui3-skin-sam">
-                          <div id="music-high-hue" class="colorwheel"></div>
-                      </div>
                       <div class="yui3-skin-sam">
                         <h4>High Strength</h4>
                         <p>
                           <span class="horiz_slider" id="music-high-strength"></span>
                         </p>
                       </div>
-                  <% } else { %>
-                    <p>The rave mood creates a light show to any music currently playing in the room (using ION's micrpophone).</p>
-                  <% } %>
 
                   </div>
                 </div>
@@ -272,7 +246,7 @@
                     </div>
 
                     <div class="yui3-skin-sam">
-                      <h4>Delay</h4>
+                      <h4>Interval</h4>
                       <p>
                         <span class="horiz_slider" id="strobe-speed"></span>
                       </p>
@@ -387,18 +361,6 @@
                     </div>
                   </div>
                 </div>
-                <% if (config.enableDebug) { %>
-                  <div id="debug" style="display: none;" class="control-panel well">
-                    <div align="center">
-                      <h3>Debug</h3><br />
-                      <p>Every time a config packet is sent, a 'pattern set' packet will be sent before to ensure that pattern is currently active.</p><br />
-                      <input type="text" class="form-control" id="debugPatternId" placeholder="Pattern ID (dec)">
-                      <input type="text" class="form-control" id="debugConfigId" placeholder="Config ID (dec)">
-                      <input type="text" class="form-control" id="debugConfigVal" placeholder="Config Value (dec)"><br />
-                      <button type="button" class="btn btn-default" id="patternDebugBtn">Submit</button>
-                    </div>
-                  </div>
-                <% } %>
               </div>
             </div>
           </div>

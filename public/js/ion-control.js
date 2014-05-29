@@ -69,7 +69,11 @@ function setupSocket() {
 
   // called anytime any user sets a pattern config
   window.iosocket.on('pattern_config_set', function(data) {
-    logMessage('<b>' + data.nickname + '</b><br /> set ' + data.pattern + ' ' + data.config + ' to ' + data.value);
+    if (typeof data.value !== 'undefined') {
+      logMessage('set ' + data.pattern + ' ' + data.config + ' to ' + data.value);
+    } else {
+      logMessage('set ' + data.pattern + ' ' + data.config);
+    }
   });
 }
 
@@ -85,9 +89,6 @@ function activatePattern(id) {
   $(".control-panel").hide();
   // show the selected panel
   $("#" + id).show();
-
-  if (id === 'debug')
-    return;
 
   lastPattern = id;
   console.log('activating ' + id);
@@ -112,12 +113,20 @@ function setPatternConfig(configName, configVal) {
   var command = function() {
     if (window.iosocket.socket.connected) {
       console.log('set config ' + configName + ' at ' + configVal + ' for pattern ' + lastPattern);
-      window.iosocket.emit('control', {
-        'controlType': 'patternConfig',
-        'pattern': lastPattern,
-        'configName': configName,
-        'configVal': configVal
-      });
+      if (typeof configVal !== 'undefined') {
+        window.iosocket.emit('control', {
+          'controlType': 'patternConfig',
+          'pattern': lastPattern,
+          'configName': configName,
+          'configVal': configVal
+        });
+      } else {
+        window.iosocket.emit('control', {
+          'controlType': 'patternConfig',
+          'pattern': lastPattern,
+          'configName': configName
+        });
+      }
     }
   };
 
@@ -137,23 +146,6 @@ function setPatternConfig(configName, configVal) {
     command();
   }
 }
-
-function setDebugConfig(patId, configId, configVal) {
-  if ((new Date()).getTime() - window.lastPacket < 500)
-    return;
-
-  window.lastPacket = (new Date()).getTime();
-
-  console.log('set config ' + configId + ' at ' + configVal + ' for pattern ' + patId);
-  window.iosocket.emit('control', {
-    'magicKey': window.magicKey,
-    'controlType': 'debug',
-    'pattern': patId,
-    'configId': configId,
-    'configVal': configVal
-  });
-}
-
 
 
 
@@ -208,27 +200,27 @@ function setupLightPanel() {
 
     // BUTTON SETUP
     $( "#patternLightCandleBtn" ).click(function() {
-      setPatternConfig('type', 1);
+      setPatternConfig('candle');
     });
 
     $( "#patternLightTungstenBtn" ).click(function() {
-      setPatternConfig('type', 2);
+      setPatternConfig('tungsten');
     });
 
     $( "#patternLightIncandescentBtn" ).click(function() {
-      setPatternConfig('type', 3);
+      setPatternConfig('incandescent');
     });
 
     $( "#patternLightHalogenBtn" ).click(function() {
-      setPatternConfig('type', 4);
+      setPatternConfig('halogen');
     });
 
     $( "#patternLightFluorescentBtn" ).click(function() {
-      setPatternConfig('type', 5);
+      setPatternConfig('fluorescent');
     });
 
     $( "#patternLightSunlightBtn" ).click(function() {
-      setPatternConfig('type', 6);
+      setPatternConfig('sunlight');
     });
   });
 }
@@ -402,53 +394,20 @@ function setupRavePanel() {
     return;
   setupStates['rave'] = true;
 
-  if (!window.debugMode)
-    return;
-
   YUI().use('dial', 'event-valuechange', 'slider', function(Y){
-    var hueWheelL = new Y.Dial({
+    var hueWheel = new Y.Dial({
       min: 0,
       max: 360,
       stepsPerRevolution: 360,
       continuous: true,
       centerButtonDiameter: 0.4,
-      render: '#music-low-hue',
-      strings: { label:'Low Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
+      render: '#music-hue',
+      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
     });
 
-    hueWheelL.after('valueChange', function(e) {
-      var hue = hueWheelL.get('value');
-      setPatternConfig('low-hue', parseInt(hue));
-    });
-
-    var hueWheelM = new Y.Dial({
-      min: 0,
-      max: 360,
-      stepsPerRevolution: 360,
-      continuous: true,
-      centerButtonDiameter: 0.4,
-      render: '#music-mid-hue',
-      strings: { label:'Mid Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
-    });
-
-    hueWheelM.after('valueChange', function(e) {
-      var hue = hueWheelM.get('value');
-      setPatternConfig('mid-hue', parseInt(hue));
-    });
-
-    var hueWheelH = new Y.Dial({
-      min: 0,
-      max: 360,
-      stepsPerRevolution: 360,
-      continuous: true,
-      centerButtonDiameter: 0.4,
-      render: '#music-high-hue',
-      strings: { label:'High Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
-    });
-
-    hueWheelH.after('valueChange', function(e) {
-      var hue = hueWheelH.get('value');
-      setPatternConfig('high-hue', parseInt(hue));
+    hueWheel.after('valueChange', function(e) {
+      var hue = hueWheel.get('value');
+      setPatternConfig('hue', parseInt(hue));
     });
 
     // Create a horizontal Slider using all defaults
@@ -468,26 +427,13 @@ function setupRavePanel() {
     var xSlider = new Y.Slider({
       value: 0,
       min: 0,
-      max: 1024,
-      render: '#music-kick-threshold'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var kt = e.newVal;
-      setPatternConfig('kick-threshold', parseInt(kt));
-    });
-
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 0,
-      min: 0,
       max: 100,
       render: '#music-low-strength'
     });
     
     xSlider.after('valueChange', function(e) {
       var lStrength = e.newVal;
-      setPatternConfig('low-strength', parseInt(lStrength));
+      setPatternConfig('lows', parseInt(lStrength));
     });
 
     // Create a horizontal Slider using all defaults
@@ -500,7 +446,7 @@ function setupRavePanel() {
     
     xSlider.after('valueChange', function(e) {
       var mStrength = e.newVal;
-      setPatternConfig('mid-strength', parseInt(mStrength));
+      setPatternConfig('mids', parseInt(mStrength));
     });
 
     // Create a horizontal Slider using all defaults
@@ -513,16 +459,16 @@ function setupRavePanel() {
     
     xSlider.after('valueChange', function(e) {
       var hStrength = e.newVal;
-      setPatternConfig('high-strength', parseInt(hStrength));
+      setPatternConfig('highs', parseInt(hStrength));
     });
 
     // BUTTON SETUP
     $( "#patternMusicBassOffBtn" ).click(function() {
-      setPatternConfig('bass', 0);
+      setPatternConfig('bassboost', 0);
     });
 
     $( "#patternMusicBassOnBtn" ).click(function() {
-      setPatternConfig('bass', 1);
+      setPatternConfig('bassboost', 1);
     });
   });
 }
@@ -627,11 +573,11 @@ function setupStrobePanel() {
     
     xSlider.after('valueChange', function(e) {
       var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
+      setPatternConfig('interval', parseInt(speed));
     });
 
     $( "#patternStrobeResetColorBtn" ).click(function() {
-      setPatternConfig('colorEnabled', 0);
+      setPatternConfig('colorenabled', 0);
     });
   });
 }
@@ -913,20 +859,5 @@ function setupPulsePanel() {
       var speed = e.newVal;
       setPatternConfig('speed', parseInt(speed));
     });
-  });
-}
-
-
-/* debug panel */
-function setupDebugPanel() {
-  activatePattern('debug');
-
-  if (setupStates.debug)
-    return;
-  setupStates['debug'] = true;
-
-  // setup submit action
-  $('#patternDebugBtn').click(function() {
-    setDebugConfig($('#debugPatternId').val(), $('#debugConfigId').val(), $('#debugConfigVal').val())
   });
 }
