@@ -6,7 +6,7 @@
     <meta name="description" content="Control the ION lamp from your web browser.">
     <meta name="author" content="Lava LLC">
 
-    <title>Try ION</title>
+    <title>ION :: web interface</title>
 
     <link href='http://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700' rel='stylesheet' type='text/css'>
 
@@ -27,7 +27,7 @@
     <div class="blog-masthead">
       <div class="container">
         <nav class="blog-nav">
-          <a class="blog-nav-item active" href="#">Try ION</a>
+          <a class="blog-nav-item active" href="#">ion-http</a>
         </nav>
       </div>
     </div>
@@ -52,23 +52,23 @@
                 <b>Moods</b>
                 <li id="offNav" class="nav-item"><a href="javascript:void(0)" onclick="setupOffPanel();">Off</a></li>
                 <li id="lightNav" class="nav-item"><a href="javascript:void(0)" onclick="setupLightPanel();">Light</a></li>
-                <li id="digitalrainNav" class="nav-item"><a href="javascript:void(0)" onclick="setupDigitalRainPanel();">Digital Rain</a></li>
                 <li id="flameNav" class="nav-item"><a href="javascript:void(0)" onclick="setupFlamePanel();">Flame</a></li>
-                <li id="spiralNav" class="nav-item"><a href="javascript:void(0)" onclick="setupSpiralPanel();">Spiral</a></li>
-                <li id="raveNav" class="nav-item"><a href="javascript:void(0)" onclick="setupRavePanel();">Rave</a></li>
-                <li id="weatherNav" class="nav-item"><a href="javascript:void(0)" onclick="setupWeatherPanel();">Weather</a></li>
-                <li id="strobeNav" class="nav-item"><a href="javascript:void(0)" onclick="setupStrobePanel();">Strobe</a></li>
-                <li id="lavaNav" class="nav-item"><a href="javascript:void(0)" onclick="setupLavaPanel();">Lava</a></li>
+                <li id="digitalrainNav" class="nav-item"><a href="javascript:void(0)" onclick="setupDigitalRainPanel();">Digital Rain</a></li>
                 <li id="rainbowNav" class="nav-item"><a href="javascript:void(0)" onclick="setupRainbowPanel();">Rainbow</a></li>
+                <li id="weatherNav" class="nav-item"><a href="javascript:void(0)" onclick="setupWeatherPanel();">Weather</a></li>
+                <li id="thermometerNav" class="nav-item"><a href="javascript:void(0)" onclick="setupThermometerPanel();">Thermometer</a></li>
+                <li id="hourglassNav" class="nav-item"><a href="javascript:void(0)" onclick="setupHourglassPanel();">Hourglass</a></li>
+                <li id="lavaNav" class="nav-item"><a href="javascript:void(0)" onclick="setupLavaPanel();">Lava</a></li>
                 <li id="linesNav" class="nav-item"><a href="javascript:void(0)" onclick="setupLinesPanel();">Lines</a></li>
-                <li id="sparkleNav" class="nav-item"><a href="javascript:void(0)" onclick="setupSparklePanel();">Sparkle</a></li>
-                <li id="fireworksNav" class="nav-item"><a href="javascript:void(0)" onclick="setupFireworksPanel();">Fireworks</a></li>
                 <li id="plasmaNav" class="nav-item"><a href="javascript:void(0)" onclick="setupPlasmaPanel();">Plasma</a></li>
+                <li id="sparkleNav" class="nav-item"><a href="javascript:void(0)" onclick="setupSparklePanel();">Sparkle</a></li>
+                <li id="spiralNav" class="nav-item"><a href="javascript:void(0)" onclick="setupSpiralPanel();">Spiral</a></li>
+                <li id="fireworksNav" class="nav-item"><a href="javascript:void(0)" onclick="setupFireworksPanel();">Fireworks</a></li>
+                <li id="strobeNav" class="nav-item"><a href="javascript:void(0)" onclick="setupStrobePanel();">Strobe</a></li>
                 <li id="pulseNav" class="nav-item"><a href="javascript:void(0)" onclick="setupPulsePanel();">Pulse</a></li>
-                <b>Notifications</b>
-                <li id="haloNav" class="nav-item"><a href="javascript:void(0)" onclick="setupHaloPanel();">Halo</a></li>
-                <li id="spinNav" class="nav-item"><a href="javascript:void(0)" onclick="setupSpinPanel();">Spin</a></li>
-                <li id="glowNav" class="nav-item"><a href="javascript:void(0)" onclick="setupGlowPanel();">Glow</a></li>
+                <li id="raveNav" class="nav-item"><a href="javascript:void(0)" onclick="setupRavePanel();">Rave</a></li>
+                <li id="whirlpoolNav" class="nav-item"><a href="javascript:void(0)" onclick="setupWhirlpoolPanel();">Whirlpool</a></li>
+                <li id="volumeNav" class="nav-item"><a href="javascript:void(0)" onclick="setupVolumePanel();">Volume</a></li>
               </ul>
             </div>
 
@@ -77,7 +77,7 @@
                 <div id="instructions" class="control-panel well">
                   <div align="center">
                     <h3>Instructions</h3><br />
-                    <p>Click a mood or notification name on the left and ION will switch to it!</p>
+                    <p>Click a mood name on the left and ION will switch to it!</p>
                   </div>
                 </div>
                 <div id="off" style="display: none;" class="control-panel well">
@@ -90,10 +90,9 @@
                   <div align="center">
                     <h3>Mood: Light</h3><br />
                     <button type="button" class="btn btn-warning" id="patternLightCandleBtn">Candle</button>
-                    <button type="button" class="btn btn-warning" id="patternLightTungstenBtn">Tungsten</button>
-                    <button type="button" class="btn btn-warning" id="patternLightIncandescentBtn">Incandescent</button><br /><br />
-                    <button type="button" class="btn btn-warning" id="patternLightHalogenBtn">Halogen</button>
-                    <button type="button" class="btn btn-warning" id="patternLightFluorescentBtn">Fluorescent</button>
+                    <button type="button" class="btn btn-warning" id="patternLightTungstenBtn">Incandescent</button>
+                    <button type="button" class="btn btn-warning" id="patternLightIncandescentBtn">Fluorescent</button><br /><br />
+                    <button type="button" class="btn btn-warning" id="patternLightHalogenBtn">Blue Sky</button>
                     <button type="button" class="btn btn-warning" id="patternLightSunlightBtn">Sunlight</button>
 
                     <div class="picker yui3-skin-sam">
@@ -106,6 +105,23 @@
                         <span class="horiz_slider" id="light-brightness"></span>
                       </p>
                     </div>
+
+                    <button type="button" class="btn btn-warning" id="patternLightLowGlowOffBtn">Low Glow Off</button>
+                    <button type="button" class="btn btn-warning" id="patternLightLowGlowOnBtn">Low Glow On</button>
+                  </div>
+                </div>
+                <div id="flame" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Flame</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="flame-hue" class="colorwheel"></div>
+                    </div>
+
+                    <button type="button" class="btn btn-warning" id="patternFlameInfernoOffBtn">Inferno Off</button>
+                    <button type="button" class="btn btn-warning" id="patternFlameInternoOnBtn">Inferno On</button><br /><br />
+
+                    <button type="button" class="btn btn-warning" id="patternFlameSoundEnabledOffBtn">Sound Enabled Off</button>
+                    <button type="button" class="btn btn-warning" id="patternFlameSoundEnabledOnBtn">Sound Enabled On</button>
                   </div>
                 </div>
                 <div id="digitalrain" style="display: none;" class="control-panel well">
@@ -123,25 +139,122 @@
                     </div>
                   </div>
                 </div>
-                <div id="flame" style="display: none;" class="control-panel well">
+                <div id="rainbow" style="display: none;" class="control-panel well">
                   <div align="center">
-                    <h3>Mood: Flame</h3>
-                    <div class="picker yui3-skin-sam">
-                        <div id="flame-hue" class="colorwheel"></div>
+                    <h3>Mood: Rainbow</h3><br />
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="rainbow-speed"></span>
+                      </p>
                     </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Brightness</h4>
+                      <p>
+                        <span class="horiz_slider" id="rainbow-brightness"></span>
+                      </p>
+                    </div>
+
+                    <button type="button" class="btn btn-warning" id="patternRainbowReverseOffBtn">Reverse Off</button>
+                    <button type="button" class="btn btn-warning" id="patternRainbowReverseOnBtn">Reverse On</button>
                   </div>
                 </div>
-                <div id="halo" style="display: none;" class="control-panel well">
+                <div id="weather" style="display: none;" class="control-panel well">
                   <div align="center">
-                    <h3>Notification: Halo</h3>
+                    <h3>Mood: Weather</h3><br />
+                    <p>The weather mood corresponds to current conditions outside and time of day. When forecast is enabled, conditions 6 hours ahead will be shown.</p><br>
+
+                    <button type="button" class="btn btn-warning" id="patternWeatherForecastOffBtn">Forecast Off</button>
+                    <button type="button" class="btn btn-warning" id="patternWeatherForecastOnBtn">Forecast On</button>
+                  </div>
+                </div>
+                <div id="thermometer" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Thermometer</h3><br />
+                    <p>The thermometer mood corresponds to the current temperature outside. When forecast is enabled, conditions 6 hours ahead will be shown.</p><br>
+
+                    <button type="button" class="btn btn-warning" id="patternThermometerForecastOffBtn">Forecast Off</button>
+                    <button type="button" class="btn btn-warning" id="patternThermometerForecastOnBtn">Forecast On</button>
+                  </div>
+                </div>
+                <div id="hourglass" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Hourglass</h3><br />
+
                     <div class="picker yui3-skin-sam">
-                        <div id="halo-hue" class="colorwheel"></div>
+                        <div id="hourglass-hue" class="colorwheel"></div>
+                    </div>
+
+                    <button type="button" class="btn btn-warning" id="patternHourglassSetTimeBtn">Set Time</button>
+                  </div>
+                </div>
+                <div id="lava" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Lava</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="lava-hue" class="colorwheel"></div>
                     </div>
 
                     <div class="yui3-skin-sam">
                       <h4>Speed</h4>
                       <p>
-                        <span class="horiz_slider" id="halo-speed"></span>
+                        <span class="horiz_slider" id="lava-speed"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="lines" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Lines</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="lines-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="lines-speed"></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div id="plasma" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Plasma</h3>
+                    <div class="picker yui3-skin-sam">
+                      <div id="boost-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="boost-speed"></span>
+                      </p>
+                    </div>
+
+                    <button type="button" class="btn btn-warning" id="patternPlasmaSoundEnabledOffBtn">Sound Enabled Off</button>
+                    <button type="button" class="btn btn-warning" id="patternPlasmaSoundEnabledOnBtn">Sound Enabled On</button>
+                  </div>
+                </div>
+                <div id="sparkle" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Sparkle</h3>
+                    <div class="picker yui3-skin-sam">
+                        <div id="pulse-hue" class="colorwheel"></div>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Speed</h4>
+                      <p>
+                        <span class="horiz_slider" id="sparkle-speed"></span>
+                      </p>
+                    </div>
+
+                    <div class="yui3-skin-sam">
+                      <h4>Sparkle Brightness</h4>
+                      <p>
+                        <span class="horiz_slider" id="sparkle-brightness"></span>
                       </p>
                     </div>
                   </div>
@@ -168,78 +281,37 @@
                     </div>
                   </div>
                 </div>
-                <div id="rave" style="display: none;" class="control-panel well">
+                <div id="fireworks" style="display: none;" class="control-panel well">
                   <div align="center">
-                    <h3>Mood: Rave</h3><br />
-
-                      <button type="button" class="btn btn-warning" id="patternMusicBassOffBtn">Bass Boost Off</button>
-                      <button type="button" class="btn btn-warning" id="patternMusicBassOnBtn">Bass Boost On</button><br /><br />
-
-                      <div class="yui3-skin-sam">
-                        <h4>Speed</h4>
-                        <p>
-                          <span class="horiz_slider" id="music-speed"></span>
-                        </p>
+                    <h3>Mood: Fireworks</h3><br />
+                     <div class="picker yui3-skin-sam">
+                        <div id="fireworks-hue" class="colorwheel"></div>
                       </div>
-
-                      <div class="picker yui3-skin-sam">
-                          <div id="music-hue" class="colorwheel"></div>
-                      </div><br>
-                      <div class="yui3-skin-sam">
-                        <h4>Low Strength</h4>
-                        <p>
-                          <span class="horiz_slider" id="music-low-strength"></span>
-                        </p>
-                      </div>
-
-                      <div class="yui3-skin-sam">
-                        <h4>Mid Strength</h4>
-                        <p>
-                          <span class="horiz_slider" id="music-mid-strength"></span>
-                        </p>
-                      </div>
-
-                      <div class="yui3-skin-sam">
-                        <h4>High Strength</h4>
-                        <p>
-                          <span class="horiz_slider" id="music-high-strength"></span>
-                        </p>
-                      </div>
-
-                  </div>
-                </div>
-                <div id="weather" style="display: none;" class="control-panel well">
-                  <div align="center">
-                    <h3>Mood: Weather</h3><br />
-                    <p>The weather mood corresponds to current conditions outside and time of day.</p>
-                  </div>
-                </div>
-                <div id="spin" style="display: none;" class="control-panel well">
-                  <div align="center">
-                    <h3>Notification: Spin</h3>
-                    <div class="picker yui3-skin-sam">
-                        <div id="lighthouse-hue" class="colorwheel"></div>
-                    </div>
 
                     <div class="yui3-skin-sam">
                       <h4>Speed</h4>
                       <p>
-                        <span class="horiz_slider" id="lighthouse-speed"></span>
+                        <span class="horiz_slider" id="fireworks-speed"></span>
                       </p>
                     </div>
 
                     <div class="yui3-skin-sam">
-                      <h4>Brightness</h4>
+                      <h4>Frequency</h4>
                       <p>
-                        <span class="horiz_slider" id="lighthouse-brightness"></span>
+                        <span class="horiz_slider" id="fireworks-frequency"></span>
                       </p>
                     </div>
+
+                    <button type="button" class="btn btn-warning" id="patternFireworksColorOffBtn">Disable Fixed Color</button>
+                    <button type="button" class="btn btn-warning" id="patternFireworksColorOnBtn">Enable Fixed Color</button>
+
+                    <button type="button" class="btn btn-warning" id="patternFireworksSoundEnabledOffBtn">Sound Enabled Off</button>
+                    <button type="button" class="btn btn-warning" id="patternFireworksSoundEnabledOnBtn">Sound Enabled On</button>
                   </div>
                 </div>
                 <div id="strobe" style="display: none;" class="control-panel well">
                   <div align="center">
                     <h3>Mood: Strobe</h3><br />
-                    <button type="button" class="btn btn-primary" id="patternStrobeResetColorBtn">Reset Color</button>
 
                     <div class="picker yui3-skin-sam">
                         <div id="strobe-hue" class="colorwheel"></div>
@@ -251,103 +323,9 @@
                         <span class="horiz_slider" id="strobe-speed"></span>
                       </p>
                     </div>
-                  </div>
-                </div>
-                <div id="lava" style="display: none;" class="control-panel well">
-                  <div align="center">
-                    <h3>Mood: Lava</h3>
-                    <div class="picker yui3-skin-sam">
-                        <div id="lava-hue" class="colorwheel"></div>
-                    </div>
 
-                    <div class="yui3-skin-sam">
-                      <h4>Speed</h4>
-                      <p>
-                        <span class="horiz_slider" id="lava-speed"></span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div id="rainbow" style="display: none;" class="control-panel well">
-                  <div align="center">
-                    <h3>Mood: Rainbow</h3><br />
-                    <div class="yui3-skin-sam">
-                      <h4>Speed</h4>
-                      <p>
-                        <span class="horiz_slider" id="rainbow-speed"></span>
-                      </p>
-                    </div>
-
-                    <div class="yui3-skin-sam">
-                      <h4>Brightness</h4>
-                      <p>
-                        <span class="horiz_slider" id="rainbow-brightness"></span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div id="lines" style="display: none;" class="control-panel well">
-                  <div align="center">
-                    <h3>Mood: Lines</h3>
-                    <div class="picker yui3-skin-sam">
-                        <div id="lines-hue" class="colorwheel"></div>
-                    </div>
-                  </div>
-                </div>
-                <div id="sparkle" style="display: none;" class="control-panel well">
-                  <div align="center">
-                    <h3>Mood: Sparkle</h3>
-                    <div class="picker yui3-skin-sam">
-                        <div id="pulse-hue" class="colorwheel"></div>
-                    </div>
-                  </div>
-                </div>
-                <div id="fireworks" style="display: none;" class="control-panel well">
-                  <div align="center">
-                    <h3>Mood: Fireworks</h3><br />
-                    <div class="yui3-skin-sam">
-                      <h4>Speed</h4>
-                      <p>
-                        <span class="horiz_slider" id="fireworks-speed"></span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div id="plasma" style="display: none;" class="control-panel well">
-                  <div align="center">
-                    <h3>Mood: Plasma</h3>
-                    <div class="picker yui3-skin-sam">
-                      <div id="boost-hue" class="colorwheel"></div>
-                    </div>
-
-                    <div class="yui3-skin-sam">
-                      <h4>Speed</h4>
-                      <p>
-                        <span class="horiz_slider" id="boost-speed"></span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div id="glow" style="display: none;" class="control-panel well">
-                  <div align="center">
-                    <h3>Notification: Glow</h3>
-                    <div class="picker yui3-skin-sam">
-                      <div id="glow-hue" class="colorwheel"></div>
-                    </div>
-
-                    <div class="yui3-skin-sam">
-                      <h4>Speed</h4>
-                      <p>
-                        <span class="horiz_slider" id="glow-speed"></span>
-                      </p>
-                    </div>
-
-                    <div class="yui3-skin-sam">
-                      <h4>Brightness</h4>
-                      <p>
-                        <span class="horiz_slider" id="glow-brightness"></span>
-                      </p>
-                    </div>
+                    <button type="button" class="btn btn-warning" id="patternStrobeColorOffBtn">Color Off</button>
+                    <button type="button" class="btn btn-warning" id="patternStrobeColorOnBtn">Color On</button>
                   </div>
                 </div>
                 <div id="pulse" style="display: none;" class="control-panel well">
@@ -358,7 +336,54 @@
                       <p>
                         <span class="horiz_slider" id="smokestack-speed"></span>
                       </p>
+
+                      <button type="button" class="btn btn-warning" id="patternPulseSoundEnabledOffBtn">Sound Enabled Off</button>
+                      <button type="button" class="btn btn-warning" id="patternPulseSoundEnabledOnBtn">Sound Enabled On</button>
                     </div>
+                  </div>
+                </div>
+                <div id="rave" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Rave</h3><br />
+
+                      <button type="button" class="btn btn-warning" id="patternRaveBassOffBtn">Bass Boost Off</button>
+                      <button type="button" class="btn btn-warning" id="patternRaveBassOnBtn">Bass Boost On</button><br /><br />
+
+                      <div class="yui3-skin-sam">
+                        <h4>Speed</h4>
+                        <p>
+                          <span class="horiz_slider" id="rave-speed"></span>
+                        </p>
+                      </div>
+
+                      <div class="picker yui3-skin-sam">
+                          <div id="rave-hue" class="colorwheel"></div>
+                      </div>
+                  </div>
+                </div>
+                <div id="whirlpool" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Whirlpool</h3><br />
+
+                      <button type="button" class="btn btn-warning" id="patternWhirlpoolBassOffBtn">Bass Boost Off</button>
+                      <button type="button" class="btn btn-warning" id="patternWhirlpoolBassOnBtn">Bass Boost On</button><br /><br />
+
+                      <div class="yui3-skin-sam">
+                        <h4>Speed</h4>
+                        <p>
+                          <span class="horiz_slider" id="whirlpool-speed"></span>
+                        </p>
+                      </div>
+
+                      <div class="picker yui3-skin-sam">
+                          <div id="whirlpool-hue" class="colorwheel"></div>
+                      </div>
+                  </div>
+                </div>
+                <div id="volume" style="display: none;" class="control-panel well">
+                  <div align="center">
+                    <h3>Mood: Volume</h3><br />
+                    <p>Crank some music - it's a volume meter!</p>
                   </div>
                 </div>
               </div>

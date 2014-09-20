@@ -1,6 +1,6 @@
 var ionode = require('ionode'),
     config = require('./config'),
-    ion = ionode.createLamp(config.lampIdentifier);
+    ion = ionode.createLamp(config.lampName);
 
 
 ion.type = 'local';
@@ -33,6 +33,9 @@ ion.on('error', function(err) {
 
 ion.on('ready', function() {
     console.log('lamp ready');
+
+    // feed weather data to ION
+    ion.beginWeatherUpdates(config.latitude, config.longitude);
 });
 
 module.exports = ion;

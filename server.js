@@ -1,5 +1,4 @@
-var config = require('./config'),
-    express = require('express'),
+var express = require('express'),
     app = express(),
     server = require('http').createServer(app),
     io = require('socket.io').listen(server);
@@ -20,12 +19,12 @@ app.set('view engine', 'ejs');              // specifying template engine
 
 // index page
 app.get('/', function(req, res) {
-    res.render('index', {'config': config});
+    res.render('index');
 });
 
 
 // set a mood
-function setPattern(moodName, cb) {
+function setMood(moodName, cb) {
   ion.setMood(moodName, function(err) {
     if (!err) {
       console.log('set mood ' + moodName);
@@ -36,13 +35,18 @@ function setPattern(moodName, cb) {
 }
 
 // set a mood config
-function setConfigForPattern(patternName, configName, configVal, cb) {
-  ion.setMoodConfig(patternName, configName, configVal, function(err) {
+function setConfigForMood(moodName, configName, configVal, cb) {
+  ion.setMoodConfig(moodName, configName, configVal, function(err) {
     if (!err) {
+      // color requires hue and saturation. for simplicity, we always set saturation to 255
+      if (configName === 'color') {
+        ion.setMoodConfig(moodName, configName.replace('color', 'saturation'), 255);
+      }
+
       if (typeof configVal !== 'undefined')
-        console.log('set ' + configName + ' to ' + configVal + ' for mood ' + patternName);
+        console.log('set ' + configName + ' to ' + configVal + ' for mood ' + moodName);
       else
-        console.log('set ' + configName + ' for mood ' + patternName);
+        console.log('set ' + configName + ' for mood ' + moodName);
       if (cb)
         cb();
     }
@@ -53,36 +57,38 @@ function setConfigForPattern(patternName, configName, configVal, cb) {
 // reduce logging
 io.set('log level', 1);
 
+
+// handle socket.io connections
 io.sockets.on('connection', function (socket) {
   // handle control packets from users
   socket.on('control', function (data) {
     // no crashes, please
     try {
-      // user is configuring a pattern
-      if (data.controlType == 'patternConfig') {
+      // user is configuring a mood
+      if (data.controlType == 'moodConfig') {
         // rate limiting
         if ((new Date()).getTime() - lastPacket < 250)
           return;
 
-        // set the pattern config
+        // set the mood config
         lastPacket = (new Date()).getTime();
-        setConfigForPattern(data.pattern, data.configName, data.configVal);
+        setConfigForMood(data.mood, data.configName, data.configVal);
 
         // alert the web browser
-        io.sockets.emit('pattern_config_set', {'nickname': socket.nickname, 'pattern': data.pattern, 'config': data.configName, 'value': data.configVal});
+        io.sockets.emit('mood_config_set', {'nickname': socket.nickname, 'mood': data.mood, 'config': data.configName, 'value': data.configVal});
 
-      // user is setting a pattern
-      } else if (data.controlType == 'pattern') {
+      // user is setting a mood
+      } else if (data.controlType == 'mood') {
         // rate limiting
         if ((new Date()).getTime() - lastPacket < 250)
           return;
 
-        // set the pattern
+        // set the mood
         lastPacket = (new Date()).getTime();
-        setPattern(data.pattern);
+        setMood(data.mood);
 
         // alert the web browser
-        io.sockets.emit('pattern_set', {'nickname': socket.nickname, 'pattern': data.pattern});
+        io.sockets.emit('mood_set', {'nickname': socket.nickname, 'mood': data.mood});
       }
     } catch (e) {}
   });
@@ -91,8 +97,8 @@ io.sockets.on('connection', function (socket) {
 
 // catch the uncaught errors that weren't wrapped in a domain or try catch statement
 process.on('uncaughtException', function(err) {
-    // handle the error safely
-    console.log(err);
+  // "handle" the error
+  console.log(err);
 });
 
 
