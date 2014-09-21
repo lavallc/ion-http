@@ -15,6 +15,7 @@ Once you've got Node.js up and running, it's as simple as...
 ```
 git clone git@github.com:lavallc/ion-http.git
 cd ion-http
+npm install
 sudo ./erupt
 ```
 
