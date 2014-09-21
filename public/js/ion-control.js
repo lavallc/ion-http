@@ -1,5 +1,5 @@
 var setupStates = {};
-var lastPattern = 'off';
+var lastMood = 'off';
 
 window.lastPacket = (new Date()).getTime();
 var queuedPacket;
@@ -59,27 +59,24 @@ function setupSocket() {
     logMessage('<b>disconnected</b>');
   });
 
-  // called anytime any user sets a pattern
-  window.iosocket.on('pattern_set', function(data) {
-    if (data.pattern === 'halo' || data.pattern === 'spin' || data.pattern === 'glow')
-      logMessage('set notification ' + data.pattern);
-    else
-      logMessage('set mood ' + data.pattern);
+  // called anytime any user sets a mood
+  window.iosocket.on('mood_set', function(data) {
+    logMessage('set mood ' + data.mood);
   });
 
-  // called anytime any user sets a pattern config
-  window.iosocket.on('pattern_config_set', function(data) {
+  // called anytime any user sets a mood config
+  window.iosocket.on('mood_config_set', function(data) {
     if (typeof data.value !== 'undefined') {
-      logMessage('set ' + data.pattern + ' ' + data.config + ' to ' + data.value);
+      logMessage('set ' + data.mood + ' ' + data.config + ' to ' + data.value);
     } else {
-      logMessage('set ' + data.pattern + ' ' + data.config);
+      logMessage('set ' + data.mood + ' ' + data.config);
     }
   });
 }
 
 
 /* ROUTED TO SOCKET.IO */
-function activatePattern(id) {
+function activateMood(id) {
   // make all nav items inactive
   $(".nav-item").removeClass('active');
   // make selected item active
@@ -90,10 +87,10 @@ function activatePattern(id) {
   // show the selected panel
   $("#" + id).show();
 
-  lastPattern = id;
+  lastMood = id;
   console.log('activating ' + id);
   if (window.iosocket.socket.connected) {
-    window.iosocket.emit('control', {'controlType': 'pattern', 'pattern': id});
+    window.iosocket.emit('control', {'controlType': 'mood', 'mood': id});
   }
 }
 
@@ -109,21 +106,21 @@ function sendQueuedPacket() {
 
 
 
-function setPatternConfig(configName, configVal) {
+function setMoodConfig(configName, configVal) {
   var command = function() {
     if (window.iosocket.socket.connected) {
-      console.log('set config ' + configName + ' at ' + configVal + ' for pattern ' + lastPattern);
+      console.log('set config ' + configName + ' at ' + configVal + ' for mood ' + lastMood);
       if (typeof configVal !== 'undefined') {
         window.iosocket.emit('control', {
-          'controlType': 'patternConfig',
-          'pattern': lastPattern,
+          'controlType': 'moodConfig',
+          'mood': lastMood,
           'configName': configName,
           'configVal': configVal
         });
       } else {
         window.iosocket.emit('control', {
-          'controlType': 'patternConfig',
-          'pattern': lastPattern,
+          'controlType': 'moodConfig',
+          'mood': lastMood,
           'configName': configName
         });
       }
@@ -149,9 +146,9 @@ function setPatternConfig(configName, configVal) {
 
 
 
-/* off pattern */
+/* off mood */
 function setupOffPanel() {
-  activatePattern('off');
+  activateMood('off');
 
   if (setupStates.off)
     return;
@@ -161,9 +158,9 @@ function setupOffPanel() {
 }
 
 
-/* light pattern */
+/* light mood */
 function setupLightPanel() {
-  activatePattern('light');
+  activateMood('light');
 
   if (setupStates.light)
     return;
@@ -182,12 +179,12 @@ function setupLightPanel() {
 
     hueWheel.after('valueChange', function(e) {
       var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
+      setMoodConfig('color', parseInt(hue));
     });
 
     // Create a horizontal Slider using all defaults
     var xSlider = new Y.Slider({
-      value: 255,
+      value: 190,
       min: 0,
       max: 255,
       render: '#light-brightness'
@@ -195,80 +192,44 @@ function setupLightPanel() {
     
     xSlider.after('valueChange', function(e) {
       var brightness = e.newVal;
-      setPatternConfig('brightness', parseInt(brightness));
+      setMoodConfig('brightness', parseInt(brightness));
     });
 
     // BUTTON SETUP
-    $( "#patternLightCandleBtn" ).click(function() {
-      setPatternConfig('candle');
+    $( "#moodLightCandleBtn" ).click(function() {
+      setMoodConfig('candle');
     });
 
-    $( "#patternLightTungstenBtn" ).click(function() {
-      setPatternConfig('tungsten');
+    $( "#moodLightIncandescentBtn" ).click(function() {
+      setMoodConfig('incandescent');
     });
 
-    $( "#patternLightIncandescentBtn" ).click(function() {
-      setPatternConfig('incandescent');
+    $( "#moodLightFluorescentBtn" ).click(function() {
+      setMoodConfig('fluorescent');
     });
 
-    $( "#patternLightHalogenBtn" ).click(function() {
-      setPatternConfig('halogen');
+    $( "#moodLightBlueSkyBtn" ).click(function() {
+      setMoodConfig('bluesky');
     });
 
-    $( "#patternLightFluorescentBtn" ).click(function() {
-      setPatternConfig('fluorescent');
+    $( "#moodLightSunlightBtn" ).click(function() {
+      setMoodConfig('sunlight');
     });
 
-    $( "#patternLightSunlightBtn" ).click(function() {
-      setPatternConfig('sunlight');
-    });
-  });
-}
-
-
-/* digital rain pattern */
-function setupDigitalRainPanel() {
-  activatePattern('digitalrain');
-
-  if (setupStates.digitalRain)
-    return;
-  setupStates['digitalRain'] = true;
-
-  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
-    var hueWheel = new Y.Dial({
-      min: 0,
-      max: 360,
-      stepsPerRevolution: 360,
-      continuous: true,
-      centerButtonDiameter: 0.4,
-      render: '#digitalrain-hue',
-      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
+    $( "#moodLightLowGlowOffBtn" ).click(function() {
+      setMoodConfig('lowglow', 0);
     });
 
-    hueWheel.after('valueChange', function(e) {
-      var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
-    });
-
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 6,
-      min: 0,
-      max: 25,
-      render: '#digitalrain-speed'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
+    $( "#moodLightLowGlowOnBtn" ).click(function() {
+      setMoodConfig('lowglow', 1);
     });
   });
 }
 
 
-/* flame pattern */
+/* flame mood */
 function setupFlamePanel() {
-  activatePattern('flame');
+  activateMood('flame');
 
   if (setupStates.flame)
     return;
@@ -287,305 +248,195 @@ function setupFlamePanel() {
 
     hueWheel.after('valueChange', function(e) {
       var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
+      setMoodConfig('color', parseInt(hue));
     });
+  });
+
+  $( "#moodFlameInfernoOffBtn" ).click(function() {
+    setMoodConfig('inferno', 0);
+  });
+
+  $( "#moodFlameInfernoOnBtn" ).click(function() {
+    setMoodConfig('inferno', 1);
+  });
+
+  $( "#moodFlameSoundEnabledOffBtn" ).click(function() {
+    setMoodConfig('enablesound', 0);
+  });
+
+  $( "#moodFlameSoundEnabledOnBtn" ).click(function() {
+    setMoodConfig('enablesound', 1);
   });
 }
 
 
-/* halo pattern */
-function setupHaloPanel() {
-  activatePattern('halo');
+/* digital rain mood */
+function setupDigitalRainPanel() {
+  activateMood('digitalrain');
 
-  if (setupStates.halo)
+  if (setupStates.digitalRain)
     return;
-  setupStates['halo'] = true;
+  setupStates['digitalRain'] = true;
 
   YUI().use('dial', 'event-valuechange', 'slider', function(Y){
     var hueWheel = new Y.Dial({
       min: 0,
       max: 360,
+      value: 120,
       stepsPerRevolution: 360,
       continuous: true,
       centerButtonDiameter: 0.4,
-      render: '#halo-hue',
+      render: '#digitalrain-hue',
       strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
     });
 
     hueWheel.after('valueChange', function(e) {
       var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
+      setMoodConfig('color', parseInt(hue));
     });
 
     // Create a horizontal Slider using all defaults
     var xSlider = new Y.Slider({
-      value: 30,
+      value: 153,
       min: 0,
       max: 255,
-      render: '#halo-speed'
+      render: '#digitalrain-speed'
     });
     
     xSlider.after('valueChange', function(e) {
       var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
+      setMoodConfig('speed', parseInt(speed));
     });
   });
 }
 
 
-/* spiral pattern */
-function setupSpiralPanel() {
-  activatePattern('spiral');
+/* rainbow mood */
+function setupRainbowPanel() {
+  activateMood('rainbow');
 
-  if (setupStates.spiral)
+  if (setupStates.rainbow)
     return;
-  setupStates['spiral'] = true;
+  setupStates['rainbow'] = true;
 
   YUI().use('dial', 'event-valuechange', 'slider', function(Y){
-    var hueWheel = new Y.Dial({
-      min: 0,
-      max: 360,
-      stepsPerRevolution: 360,
-      continuous: true,
-      centerButtonDiameter: 0.4,
-      render: '#spiral-hue',
-      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
-    });
-
-    hueWheel.after('valueChange', function(e) {
-      var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
-    });
-
     // Create a horizontal Slider using all defaults
     var xSlider = new Y.Slider({
-      value: 26,
+      value: 10,
       min: 0,
-      max: 255,
-      render: '#spiral-speed'
+      max: 150,
+      render: '#rainbow-speed'
     });
     
     xSlider.after('valueChange', function(e) {
       var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
+      setMoodConfig('speed', parseInt(speed));
     });
 
     // Create a horizontal Slider using all defaults
     var xSlider = new Y.Slider({
-      value: 255,
+      value: 153,
       min: 0,
       max: 255,
-      render: '#spiral-brightness'
+      render: '#rainbow-brightness'
     });
     
     xSlider.after('valueChange', function(e) {
       var brightness = e.newVal;
-      setPatternConfig('brightness', parseInt(brightness));
+      setMoodConfig('brightness', parseInt(brightness));
     });
+  });
+
+  $( "#moodRainbowReverseOffBtn" ).click(function() {
+    setMoodConfig('reverse', 0);
+  });
+
+  $( "#moodRainbowReverseOnBtn" ).click(function() {
+    setMoodConfig('reverse', 1);
   });
 }
 
 
-/* music pattern */
-function setupRavePanel() {
-  activatePattern('rave');
-
-  if (setupStates.rave)
-    return;
-  setupStates['rave'] = true;
-
-  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
-    var hueWheel = new Y.Dial({
-      min: 0,
-      max: 360,
-      stepsPerRevolution: 360,
-      continuous: true,
-      centerButtonDiameter: 0.4,
-      render: '#music-hue',
-      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
-    });
-
-    hueWheel.after('valueChange', function(e) {
-      var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
-    });
-
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 21,
-      min: 0,
-      max: 25,
-      render: '#music-speed'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
-    });
-
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 0,
-      min: 0,
-      max: 100,
-      render: '#music-low-strength'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var lStrength = e.newVal;
-      setPatternConfig('lows', parseInt(lStrength));
-    });
-
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 0,
-      min: 0,
-      max: 100,
-      render: '#music-mid-strength'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var mStrength = e.newVal;
-      setPatternConfig('mids', parseInt(mStrength));
-    });
-
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 0,
-      min: 0,
-      max: 100,
-      render: '#music-high-strength'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var hStrength = e.newVal;
-      setPatternConfig('highs', parseInt(hStrength));
-    });
-
-    // BUTTON SETUP
-    $( "#patternMusicBassOffBtn" ).click(function() {
-      setPatternConfig('bassboost', 0);
-    });
-
-    $( "#patternMusicBassOnBtn" ).click(function() {
-      setPatternConfig('bassboost', 1);
-    });
-  });
-}
-
-
-/* weather pattern */
+/* weather mood */
 function setupWeatherPanel() {
-  activatePattern('weather');
+  activateMood('weather');
 
   if (setupStates.weather)
     return;
   setupStates['weather'] = true;
 
-  // no config needed
+  // forecast
+  $( "#moodWeatherForecastOffBtn" ).click(function() {
+    setMoodConfig('forecast', 0);
+  });
+
+  $( "#moodWeatherForecastOnBtn" ).click(function() {
+    setMoodConfig('forecast', 1);
+  });
 }
 
 
-/* spin pattern */
-function setupSpinPanel() {
-  activatePattern('spin');
+/* thermometer mood */
+function setupThermometerPanel() {
+  activateMood('thermometer');
 
-  if (setupStates.spin)
+  if (setupStates.thermometer)
     return;
-  setupStates['spin'] = true;
+  setupStates['thermometer'] = true;
+
+  // forecast
+  $( "#moodThermometerForecastOffBtn" ).click(function() {
+    setMoodConfig('forecast', 0);
+  });
+
+  $( "#moodThermometerForecastOnBtn" ).click(function() {
+    setMoodConfig('forecast', 1);
+  });
+}
+
+
+/* hourglass mood */
+function setupHourglassPanel() {
+  activateMood('hourglass');
+
+  if (setupStates.hourglass)
+    return;
+  setupStates['hourglass'] = true;
 
   YUI().use('dial', 'event-valuechange', 'slider', function(Y){
     var hueWheel = new Y.Dial({
       min: 0,
       max: 360,
+      value: 44,
       stepsPerRevolution: 360,
       continuous: true,
       centerButtonDiameter: 0.4,
-      render: '#lighthouse-hue',
+      render: '#hourglass-hue',
       strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
     });
 
     hueWheel.after('valueChange', function(e) {
       var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
-    });
-
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 3,
-      min: 0,
-      max: 90,
-      render: '#lighthouse-speed'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
-    });
-
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 255,
-      min: 0,
-      max: 255,
-      render: '#lighthouse-brightness'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var brightness = e.newVal;
-      setPatternConfig('brightness', parseInt(brightness));
+      setMoodConfig('color', parseInt(hue));
     });
   });
+
+  $( "#moodHourglassSetTimeBtn" ).click(function() {
+    var time = prompt("Enter time (seconds)", "");
+
+    if (time != null && isPositiveInteger(time)) {
+      setMoodConfig('time', parseInt(time));
+    }
+  });
+}
+function isPositiveInteger(n) {
+  return n >>> 0 === parseFloat(n);
 }
 
 
-/* strobe pattern */
-function setupStrobePanel() {
-  activatePattern('strobe');
-
-  if (setupStates.strobe)
-    return;
-  setupStates['strobe'] = true;
-
-  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
-  var hueWheel = new Y.Dial({
-      min: 0,
-      max: 360,
-      stepsPerRevolution: 360,
-      continuous: true,
-      centerButtonDiameter: 0.4,
-      render: '#strobe-hue',
-      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
-    });
-
-    hueWheel.after('valueChange', function(e) {
-      var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
-    });
-
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 7,
-      min: 0,
-      max: 25,
-      render: '#strobe-speed'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var speed = e.newVal;
-      setPatternConfig('interval', parseInt(speed));
-    });
-
-    $( "#patternStrobeResetColorBtn" ).click(function() {
-      setPatternConfig('colorenabled', 0);
-    });
-  });
-}
-
-
-/* lava pattern */
+/* lava mood */
 function setupLavaPanel() {
-  activatePattern('lava');
+  activateMood('lava');
 
   if (setupStates.lava)
     return;
@@ -604,12 +455,12 @@ function setupLavaPanel() {
 
     hueWheel.after('valueChange', function(e) {
       var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
+      setMoodConfig('color', parseInt(hue));
     });
 
     // Create a horizontal Slider using all defaults
     var xSlider = new Y.Slider({
-      value: 1,
+      value: 10,
       min: 0,
       max: 255,
       render: '#lava-speed'
@@ -617,62 +468,25 @@ function setupLavaPanel() {
     
     xSlider.after('valueChange', function(e) {
       var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
+      setMoodConfig('speed', parseInt(speed));
     });
   });
 }
 
 
-/* rainbow pattern */
-function setupRainbowPanel() {
-  activatePattern('rainbow');
-
-  if (setupStates.rainbow)
-    return;
-  setupStates['rainbow'] = true;
-
-  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 1,
-      min: 0,
-      max: 36,
-      render: '#rainbow-speed'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
-    });
-
-    // Create a horizontal Slider using all defaults
-    var xSlider = new Y.Slider({
-      value: 255,
-      min: 0,
-      max: 255,
-      render: '#rainbow-brightness'
-    });
-    
-    xSlider.after('valueChange', function(e) {
-      var brightness = e.newVal;
-      setPatternConfig('brightness', parseInt(brightness));
-    });
-  });
-}
-
-
-/* lines pattern */
+/* lines mood */
 function setupLinesPanel() {
-  activatePattern('lines');
+  activateMood('lines');
 
   if (setupStates.lines)
     return;
   setupStates['lines'] = true;
 
   YUI().use('dial', 'event-valuechange', 'slider', function(Y){
-  var hueWheel = new Y.Dial({
+    var hueWheel = new Y.Dial({
       min: 0,
       max: 360,
+      value: 240,
       stepsPerRevolution: 360,
       continuous: true,
       centerButtonDiameter: 0.4,
@@ -682,69 +496,28 @@ function setupLinesPanel() {
 
     hueWheel.after('valueChange', function(e) {
       var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
-    });
-  });
-}
-
-
-/* sparkle pattern */
-function setupSparklePanel() {
-  activatePattern('sparkle');
-
-  if (setupStates.sparkle)
-    return;
-  setupStates['sparkle'] = true;
-
-  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
-  var hueWheel = new Y.Dial({
-      min: 0,
-      max: 360,
-      stepsPerRevolution: 360,
-      continuous: true,
-      centerButtonDiameter: 0.4,
-      render: '#pulse-hue',
-      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
+      setMoodConfig('color', parseInt(hue));
     });
 
-    hueWheel.after('valueChange', function(e) {
-      var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
-    });
-  });
-}
-
-
-
-
-/* fireworks pattern */
-function setupFireworksPanel() {
-  activatePattern('fireworks');
-
-  if (setupStates.fireworks)
-    return;
-  setupStates['fireworks'] = true;
-
-  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
     // Create a horizontal Slider using all defaults
     var xSlider = new Y.Slider({
-      value: 75,
+      value: 50,
       min: 0,
       max: 255,
-      render: '#fireworks-speed'
+      render: '#lines-speed'
     });
     
     xSlider.after('valueChange', function(e) {
       var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
+      setMoodConfig('speed', parseInt(speed));
     });
   });
 }
 
 
-/* plasma pattern */
+/* plasma mood */
 function setupPlasmaPanel() {
-  activatePattern('plasma');
+  activateMood('plasma');
 
   if (setupStates.plasma)
     return;
@@ -754,44 +527,104 @@ function setupPlasmaPanel() {
     var hueWheel = new Y.Dial({
       min: 0,
       max: 360,
+      value: 30,
       stepsPerRevolution: 360,
       continuous: true,
       centerButtonDiameter: 0.4,
-      render: '#boost-hue',
+      render: '#plasma-hue',
       strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
     });
 
     hueWheel.after('valueChange', function(e) {
       var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
+      setMoodConfig('color', parseInt(hue));
     });
 
     // Create a horizontal Slider using all defaults
     var xSlider = new Y.Slider({
-      value: 4,
+      value: 20,
       min: 0,
-      max: 25,
-      render: '#boost-speed'
+      max: 150,
+      render: '#plasma-speed'
     });
     
     xSlider.after('valueChange', function(e) {
       var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
+      setMoodConfig('speed', parseInt(speed));
+    });
+  });
+
+  $( "#moodPlasmaSoundEnabledOffBtn" ).click(function() {
+    setMoodConfig('soundenabled', 0);
+  });
+
+  $( "#moodPlasmaSoundEnabledOnBtn" ).click(function() {
+    setMoodConfig('soundenabled', 1);
+  });
+}
+
+
+/* sparkle mood */
+function setupSparklePanel() {
+  activateMood('sparkle');
+
+  if (setupStates.sparkle)
+    return;
+  setupStates['sparkle'] = true;
+
+  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
+    var hueWheel = new Y.Dial({
+      min: 0,
+      max: 360,
+      value: 200,
+      stepsPerRevolution: 360,
+      continuous: true,
+      centerButtonDiameter: 0.4,
+      render: '#sparkle-hue',
+      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
+    });
+
+    hueWheel.after('valueChange', function(e) {
+      var hue = hueWheel.get('value');
+      setMoodConfig('color', parseInt(hue));
+    });
+
+    // Create a horizontal Slider using all defaults
+    var xSlider = new Y.Slider({
+      value: 10,
+      min: 0,
+      max: 150,
+      render: '#sparkle-speed'
+    });
+    
+    xSlider.after('valueChange', function(e) {
+      var speed = e.newVal;
+      setMoodConfig('speed', parseInt(speed));
+    });
+
+    // Create a horizontal Slider using all defaults
+    var xSlider = new Y.Slider({
+      value: 166,
+      min: 0,
+      max: 255,
+      render: '#sparkle-brightness'
+    });
+    
+    xSlider.after('valueChange', function(e) {
+      var speed = e.newVal;
+      setMoodConfig('sparklebrightness', parseInt(speed));
     });
   });
 }
 
 
+/* spiral mood */
+function setupSpiralPanel() {
+  activateMood('spiral');
 
-
-
-/* glow pattern */
-function setupGlowPanel() {
-  activatePattern('glow');
-
-  if (setupStates.glow)
+  if (setupStates.spiral)
     return;
-  setupStates['glow'] = true;
+  setupStates['spiral'] = true;
 
   YUI().use('dial', 'event-valuechange', 'slider', function(Y){
     var hueWheel = new Y.Dial({
@@ -800,47 +633,164 @@ function setupGlowPanel() {
       stepsPerRevolution: 360,
       continuous: true,
       centerButtonDiameter: 0.4,
-      render: '#glow-hue',
+      render: '#spiral-hue',
       strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
     });
 
     hueWheel.after('valueChange', function(e) {
       var hue = hueWheel.get('value');
-      setPatternConfig('hue', parseInt(hue));
+      setMoodConfig('color', parseInt(hue));
     });
 
     // Create a horizontal Slider using all defaults
     var xSlider = new Y.Slider({
-      value: 10,
+      value: 26,
       min: 0,
-      max: 120,
-      render: '#glow-speed'
+      max: 255,
+      render: '#spiral-speed'
     });
     
     xSlider.after('valueChange', function(e) {
       var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
+      setMoodConfig('speed', parseInt(speed));
     });
 
     // Create a horizontal Slider using all defaults
     var xSlider = new Y.Slider({
-      value: 255,
+      value: 190,
       min: 0,
       max: 255,
-      render: '#glow-brightness'
+      render: '#spiral-brightness'
     });
     
     xSlider.after('valueChange', function(e) {
       var brightness = e.newVal;
-      setPatternConfig('brightness', parseInt(brightness));
+      setMoodConfig('brightness', parseInt(brightness));
     });
   });
 }
 
 
-/* pulse pattern */
+/* fireworks mood */
+function setupFireworksPanel() {
+  activateMood('fireworks');
+
+  if (setupStates.fireworks)
+    return;
+  setupStates['fireworks'] = true;
+
+  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
+    var hueWheel = new Y.Dial({
+      min: 0,
+      max: 360,
+      stepsPerRevolution: 360,
+      continuous: true,
+      centerButtonDiameter: 0.4,
+      render: '#fireworks-hue',
+      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
+    });
+
+    hueWheel.after('valueChange', function(e) {
+      var hue = hueWheel.get('value');
+      setMoodConfig('dominantcolor', parseInt(hue));
+    });
+
+    // Create a horizontal Slider using all defaults
+    var xSlider = new Y.Slider({
+      value: 60,
+      min: 0,
+      max: 255,
+      render: '#fireworks-speed'
+    });
+    
+    xSlider.after('valueChange', function(e) {
+      var speed = e.newVal;
+      setMoodConfig('speed', parseInt(speed));
+    });
+
+    // Create a horizontal Slider using all defaults
+    var xSlider = new Y.Slider({
+      value: 215,
+      min: 0,
+      max: 255,
+      render: '#fireworks-frequency'
+    });
+    
+    xSlider.after('valueChange', function(e) {
+      var speed = e.newVal;
+      setMoodConfig('frequency', parseInt(speed));
+    });
+  });
+
+  $( "#moodFireworksColorOffBtn" ).click(function() {
+    setMoodConfig('enablecolor', 0);
+  });
+
+  $( "#moodFireworksColorOnBtn" ).click(function() {
+    setMoodConfig('enablecolor', 1);
+  });
+
+  $( "#moodFireworksSoundEnabledOffBtn" ).click(function() {
+    setMoodConfig('soundenabled', 0);
+  });
+
+  $( "#moodFireworksSoundEnabledOnBtn" ).click(function() {
+    setMoodConfig('soundenabled', 1);
+  });
+}
+
+
+/* strobe mood */
+function setupStrobePanel() {
+  activateMood('strobe');
+
+  if (setupStates.strobe)
+    return;
+  setupStates['strobe'] = true;
+
+  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
+    var hueWheel = new Y.Dial({
+      min: 0,
+      max: 360,
+      stepsPerRevolution: 360,
+      continuous: true,
+      centerButtonDiameter: 0.4,
+      render: '#strobe-hue',
+      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
+    });
+
+    hueWheel.after('valueChange', function(e) {
+      var hue = hueWheel.get('value');
+      setMoodConfig('color', parseInt(hue));
+    });
+
+    // Create a horizontal Slider using all defaults
+    var xSlider = new Y.Slider({
+      value: 150,
+      min: 0,
+      max: 255,
+      render: '#strobe-interval'
+    });
+    
+    xSlider.after('valueChange', function(e) {
+      var speed = e.newVal;
+      setMoodConfig('interval', parseInt(speed));
+    });
+  });
+
+  $( "#moodStrobeColorOffBtn" ).click(function() {
+    setMoodConfig('colorenabled', 0);
+  });
+
+  $( "#moodStrobeColorOnBtn" ).click(function() {
+    setMoodConfig('colorenabled', 1);
+  });
+}
+
+
+/* pulse mood */
 function setupPulsePanel() {
-  activatePattern('pulse');
+  activateMood('pulse');
 
   if (setupStates.pulse)
     return;
@@ -849,15 +799,133 @@ function setupPulsePanel() {
   YUI().use('dial', 'event-valuechange', 'slider', function(Y){
     // Create a horizontal Slider using all defaults
     var xSlider = new Y.Slider({
-      value: 128,
+      value: 255,
       min: 0,
       max: 255,
-      render: '#smokestack-speed'
+      render: '#pulse-speed'
     });
     
     xSlider.after('valueChange', function(e) {
       var speed = e.newVal;
-      setPatternConfig('speed', parseInt(speed));
+      setMoodConfig('speed', parseInt(speed));
     });
   });
+
+  $( "#moodPulseSoundEnabledOffBtn" ).click(function() {
+    setMoodConfig('soundenabled', 0);
+  });
+
+  $( "#moodPulseSoundEnabledOnBtn" ).click(function() {
+    setMoodConfig('soundenabled', 1);
+  });
+}
+
+
+/* rave mood */
+function setupRavePanel() {
+  activateMood('rave');
+
+  if (setupStates.rave)
+    return;
+  setupStates['rave'] = true;
+
+  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
+    var hueWheel = new Y.Dial({
+      min: 0,
+      max: 360,
+      stepsPerRevolution: 360,
+      continuous: true,
+      centerButtonDiameter: 0.4,
+      render: '#rave-hue',
+      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
+    });
+
+    hueWheel.after('valueChange', function(e) {
+      var hue = hueWheel.get('value');
+      setMoodConfig('dominantcolor', parseInt(hue));
+    });
+
+    // Create a horizontal Slider using all defaults
+    var xSlider = new Y.Slider({
+      value: 156,
+      min: 0,
+      max: 255,
+      render: '#rave-speed'
+    });
+    
+    xSlider.after('valueChange', function(e) {
+      var speed = e.newVal;
+      setMoodConfig('speed', parseInt(speed));
+    });
+
+    // BUTTON SETUP
+    $( "#moodRaveBassOffBtn" ).click(function() {
+      setMoodConfig('bassboost', 0);
+    });
+
+    $( "#moodRaveBassOnBtn" ).click(function() {
+      setMoodConfig('bassboost', 1);
+    });
+  });
+}
+
+
+/* whirlpool mood */
+function setupWhirlpoolPanel() {
+  activateMood('whirlpool');
+
+  if (setupStates.whirlpool)
+    return;
+  setupStates['whirlpool'] = true;
+
+  YUI().use('dial', 'event-valuechange', 'slider', function(Y){
+    var hueWheel = new Y.Dial({
+      min: 0,
+      max: 360,
+      stepsPerRevolution: 360,
+      continuous: true,
+      centerButtonDiameter: 0.4,
+      render: '#whirlpool-hue',
+      strings: { label:'Hue', resetStr:'Reset', tooltipHandle:'Drag to set value' }
+    });
+
+    hueWheel.after('valueChange', function(e) {
+      var hue = hueWheel.get('value');
+      setMoodConfig('dominantcolor', parseInt(hue));
+    });
+
+    // Create a horizontal Slider using all defaults
+    var xSlider = new Y.Slider({
+      value: 125,
+      min: 0,
+      max: 255,
+      render: '#whirlpool-speed'
+    });
+    
+    xSlider.after('valueChange', function(e) {
+      var speed = e.newVal;
+      setMoodConfig('speed', parseInt(speed));
+    });
+
+    // BUTTON SETUP
+    $( "#moodRaveBassOffBtn" ).click(function() {
+      setMoodConfig('bassboost', 0);
+    });
+
+    $( "#moodRaveBassOnBtn" ).click(function() {
+      setMoodConfig('bassboost', 1);
+    });
+  });
+}
+
+
+/* volume mood */
+function setupVolumePanel() {
+  activateMood('volume');
+
+  if (setupStates.volume)
+    return;
+  setupStates['volume'] = true;
+
+  // no config needed
 }

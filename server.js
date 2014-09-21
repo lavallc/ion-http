@@ -34,23 +34,29 @@ function setMood(moodName, cb) {
   });
 }
 
+function setConfigComplete(moodName, configName, configVal, err, cb) {
+  if (!err) {
+    if (typeof configVal !== 'undefined')
+      console.log('set ' + configName + ' to ' + configVal + ' for mood ' + moodName);
+    else
+      console.log('set ' + configName + ' for mood ' + moodName);
+    if (cb)
+      cb();
+  }
+}
+
 // set a mood config
 function setConfigForMood(moodName, configName, configVal, cb) {
-  ion.setMoodConfig(moodName, configName, configVal, function(err) {
-    if (!err) {
-      // color requires hue and saturation. for simplicity, we always set saturation to 255
-      if (configName === 'color') {
-        ion.setMoodConfig(moodName, configName.replace('color', 'saturation'), 255);
-      }
-
-      if (typeof configVal !== 'undefined')
-        console.log('set ' + configName + ' to ' + configVal + ' for mood ' + moodName);
-      else
-        console.log('set ' + configName + ' for mood ' + moodName);
-      if (cb)
-        cb();
-    }
-  });
+  // color requires hue and saturation. for simplicity, we always set saturation to 255
+  if (configName === 'color') {
+    ion.setMoodConfig(moodName, configName, configVal, 255, function(err) {
+      setConfigComplete(moodName, configName, configVal, err, cb);
+    });
+  } else {
+    ion.setMoodConfig(moodName, configName, configVal, function(err) {
+      setConfigComplete(moodName, configName, configVal, err, cb);
+    });
+  }
 }
 
 
