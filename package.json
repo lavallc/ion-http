@@ -2,12 +2,12 @@
   "name": "ion-http",
   "description": "Control an ION lamp from your browser!",
   "author": "Eric Barch <eric.barch@lava.io>",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "dependencies": {
-    "express":   "4.0.x",
+    "express":   "4.17.x",
     "ejs":       "1.0.x",
     "socket.io": "0.9.x",
-    "ionode":    "0.0.x",
+    "ionode":    "0.0.10",
     "forever":   "0.10.x"
   },
   "engine": "node >= 1.0.0"
